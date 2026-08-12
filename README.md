@@ -513,7 +513,7 @@ Os requisitos de prioridade **alta** são considerados essenciais para que o sis
 
 ### Requisitos Funcionais
 
-~10 requisitos funcionais principais~
+**~10 requisitos funcionais principais**
 
 -   Autenticação;
     
@@ -538,7 +538,7 @@ Os requisitos de prioridade **alta** são considerados essenciais para que o sis
 
 ### Requisitos Não Funcionais
 
-~10 requisitos não funcionais principais~
+**~10 requisitos não funcionais principais**
 
 -   Segurança;
     
