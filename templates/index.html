@@ -1,35 +1,307 @@
-<!DOCTYPE html>
 
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title> DevFlix</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#101014">
+    <meta name="description" content="Explore o catálogo de filmes do DevFlix.">
+
+    <title>DevFlix | Catálogo de Filmes</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 </head>
 
 <body>
-    <header class ="Navbar">
-        <h1 class ="logo">Dev <span>Flix</span></h1>
+
+    <header class="navbar">
+        <a href="{{ url_for('home') }}" class="logo" aria-label="DevFlix - início">
+            Dev<span>Flix</span>
+        </a>
+
+        <div class="navbar-info">
+            <span class="status-indicator"></span>
+            Seu catálogo de filmes
+        </div>
     </header>
 
-    <section class="container">
-        <div class="section-title">
-            <h2>Catálogo de filmes</h2>
-        </div>
+    <main class="container">
 
-          <div class="grid-filmes">
-        {% for filme in filmes %}
-            <div class="card">
-              <div class="card-content">
-                <h3>{{ filme.titulo }}</h3>
-                <img src="{{ filme.capa_url}}" class="card-img" alt="{{ filme.titulo }}">
-                  <p> <strong>Gênero:</strong>{{filme.geneto}}</p>
-                  <p><strong>Lançamento:</strong>{{filme.ano_lancamento}}</p>
-                  <p><strong>Nota:</strong>{{filme.nota}}</p>
-              </div>
-                {% else %}
+        <section class="hero">
+            <div class="hero-text">
+                <span class="eyebrow">SUA PRÓXIMA MARATONA COMEÇA AQUI</span>
+
+                <h1>Descubra seu próximo <span>filme favorito.</span></h1>
+
+                <p>
+                    Explore os títulos do catálogo e encontre algo
+                    perfeito para assistir.
+                </p>
             </div>
-        {% endfor %}
-    </div>
-</section>
+
+            <div class="hero-icon" aria-hidden="true">🎬</div>
+        </section>
+
+        <section class="catalogo" aria-labelledby="titulo-catalogo">
+
+            <div class="header-section">
+                <div>
+                    <span class="section-label">EXPLORE</span>
+                    <h2 id="titulo-catalogo" class="section-title">
+                        Catálogo de filmes
+                    </h2>
+                </div>
+
+                <span class="catalog-count">
+                    {{ filmes|length }}
+                    {% if filmes|length == 1 %}
+                        filme
+                    {% else %}
+                        filmes
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if filmes %}
+
+                <div class="grid-filmes">
+
+                    {% for filme in filmes %}
+
+                        <article class="card">
+
+                            <div class="card-poster">
+
+                                {% if filme.capa_url %}
+                                    <img
+                                        src="{{ filme.capa_url }}"
+                                        class="card-img"
+                                        alt="Capa do filme {{ filme.titulo }}"
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <div class="card-img card-img-placeholder">
+                                        <span>🎬</span>
+                                        <span>Sem capa disponível</span>
+                                    </div>
+                                {% endif %}
+
+                                {% if filme.nota is not none %}
+                                    <span class="nota-badge">
+                                        <span aria-hidden="true">★</span>
+                                        {{ filme.nota }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+
+                            <div class="card-content">
+
+                                <h3 title="{{ filme.titulo }}">
+                                    {{ filme.titulo }}
+                                </h3>
+
+                                <p class="filme-genero">
+                                    {{ filme.genero or 'Gênero não informado' }}
+                                </p>
+
+                                <div class="filme-detalhes">
+                                    <p>
+                                        <span>LANÇAMENTO</span>
+                                        <strong>
+                                            {{ filme.ano_lancamento or 'Não informado' }}
+                                        </strong>
+                                    </p>
+
+                                    <p>
+                                        <span>AVALIAÇÃO</span>
+                                        <strong>
+                                            {% if filme.nota is not none %}
+                                                {{ filme.nota }} / 10
+                                            {% else %}
+                                                Sem nota
+                                            {% endif %}
+                                        </strong>
+                                    </p>
+                                </div>
+
+                                <form
+                                    class="form-excluir"
+                                    action="{{ url_for('deletar_filme', id=filme.id) }}"
+                                    method="POST"
+                                    onsubmit="return confirmarExclusao(event, this)"
+                                >
+                                    <button type="submit" class="btn-delete">
+                                        <span aria-hidden="true">🗑</span>
+                                        Excluir filme
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </article>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    <div class="empty-icon" aria-hidden="true">🍿</div>
+
+                    <h3>Seu catálogo está vazio</h3>
+
+                    <p>
+                        Ainda não há filmes cadastrados no banco de dados.
+                        Quando houver registros, eles aparecerão aqui.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <footer class="footer">
+            <a href="{{ url_for('home') }}" class="footer-logo">
+                Dev<span>Flix</span>
+            </a>
+
+            <p>Seu universo de filmes, em um só lugar.</p>
+
+            <span>© {{ ano_atual if ano_atual is defined else '2026' }} DevFlix</span>
+        </footer>
+
+    </main>
+
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+    <script>
+        let temporizadorToast;
+
+        function mostrarToast(mensagem, tipo = "sucesso") {
+            const toast = document.getElementById("toast");
+
+            toast.textContent = mensagem;
+            toast.className = `toast ${tipo} visivel`;
+
+            clearTimeout(temporizadorToast);
+
+            temporizadorToast = setTimeout(() => {
+                toast.classList.remove("visivel");
+            }, 3500);
+        }
+
+        async function confirmarExclusao(evento, formulario) {
+            evento.preventDefault();
+
+            const confirmado = window.confirm(
+                "Tem certeza de que deseja excluir este filme? Esta ação não pode ser desfeita."
+            );
+
+            if (!confirmado) {
+                return false;
+            }
+
+            const botao = formulario.querySelector("button");
+            const textoOriginal = botao.innerHTML;
+
+            botao.disabled = true;
+            botao.textContent = "Excluindo...";
+
+            try {
+                const resposta = await fetch(formulario.action, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok || !dados.sucesso) {
+                    throw new Error(
+                        dados.mensagem || "Não foi possível excluir o filme."
+                    );
+                }
+
+                const card = formulario.closest(".card");
+
+                if (card) {
+                    card.classList.add("card-removendo");
+
+                    setTimeout(() => {
+                        card.remove();
+
+                        const cardsRestantes =
+                            document.querySelectorAll(".grid-filmes .card");
+
+                        atualizarContagem(cardsRestantes.length);
+
+                        if (cardsRestantes.length === 0) {
+                            mostrarEstadoVazio();
+                        }
+                    }, 250);
+                }
+
+                mostrarToast(dados.mensagem);
+
+            } catch (erro) {
+                mostrarToast(erro.message, "erro");
+                botao.disabled = false;
+                botao.innerHTML = textoOriginal;
+            }
+
+            return false;
+        }
+
+        function atualizarContagem(quantidade) {
+            const contador = document.querySelector(".catalog-count");
+
+            if (contador) {
+                contador.textContent =
+                    `${quantidade} ${quantidade === 1 ? "filme" : "filmes"}`;
+            }
+        }
+
+        function mostrarEstadoVazio() {
+            const catalogo = document.querySelector(".catalogo");
+            const grade = document.querySelector(".grid-filmes");
+
+            if (!catalogo || !grade) {
+                return;
+            }
+
+            grade.remove();
+
+            const vazio = document.createElement("div");
+            vazio.className = "empty-state";
+
+            const icone = document.createElement("div");
+            icone.className = "empty-icon";
+            icone.setAttribute("aria-hidden", "true");
+            icone.textContent = "🍿";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent = "Seu catálogo está vazio";
+
+            const descricao = document.createElement("p");
+            descricao.textContent =
+                "Ainda não há filmes cadastrados no banco de dados. Quando houver registros, eles aparecerão aqui.";
+
+            vazio.append(icone, titulo, descricao);
+            catalogo.appendChild(vazio);
+        }
+    </script>
+
+</body>
+</html>
